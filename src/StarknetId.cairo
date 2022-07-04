@@ -7,6 +7,13 @@ from starkware.starknet.common.syscalls import get_caller_address
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 
 #
+# Events
+#
+@event
+func data_update(token_id : Uint256, type : felt, data : felt):
+end
+
+#
 # Constructor
 #
 
@@ -78,7 +85,9 @@ func is_approved_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range
     return (is_approved)
 end
 
-# # New Functions
+#
+# STARKNET ID specific
+#
 @view
 func get_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256, type : felt
@@ -145,7 +154,9 @@ func safe_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_
     return ()
 end
 
-# # New functions
+#
+# STARKNET ID specific
+#
 @external
 func set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     token_id : Uint256, type : felt, data : felt
@@ -153,6 +164,7 @@ func set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}
     let (owner) = ERC721.owner_of(token_id)
     let (caller) = get_caller_address()
     assert owner = caller
+    data_update.emit(token_id, type, data)
     identity_data_storage.write(token_id, type, data)
     return ()
 end
