@@ -150,6 +150,9 @@ end
 func set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     token_id : Uint256, type : felt, data : felt
 ):
+    let (owner) = ERC721.owner_of(token_id)
+    let (caller) = get_caller_address()
+    assert owner = caller
     identity_data_storage.write(token_id, type, data)
     return ()
 end
