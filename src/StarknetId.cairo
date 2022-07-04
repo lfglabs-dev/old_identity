@@ -21,11 +21,11 @@ end
 #
 
 @storage_var
-func identityData_storage(token_id : Uint256, type : felt) -> (data : felt):
+func identity_data_storage(token_id : Uint256, type : felt) -> (data : felt):
 end
 
 @storage_var
-func isValidData_storage(tokenid : Uint256, type : felt, data : felt, address : felt) -> (
+func is_valid_data_storage(tokenid : Uint256, type : felt, data : felt, address : felt) -> (
     rep : felt
 ):
 end
@@ -83,7 +83,7 @@ end
 func get_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256, type : felt
 ) -> (data : felt):
-    let (data : felt) = identityData_storage.read(token_id, type)
+    let (data : felt) = identity_data_storage.read(token_id, type)
     return (data)
 end
 
@@ -91,8 +91,8 @@ end
 func get_valid_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256, type : felt, address : felt
 ) -> (data : felt):
-    let (data : felt) = identityData_storage.read(token_id, type)
-    let (is_valid : felt) = isValidData_storage.read(token_id, type, data, address)
+    let (data : felt) = identity_data_storage.read(token_id, type)
+    let (is_valid : felt) = is_valid_data_storage.read(token_id, type, data, address)
     if is_valid == 1:
         return (data)
     else:
@@ -104,8 +104,8 @@ end
 func is_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256, type : felt, address : felt
 ) -> (is_valid : felt):
-    let (data : felt) = identityData_storage.read(token_id, type)
-    let (is_valid : felt) = isValidData_storage.read(token_id, type, data, address)
+    let (data : felt) = identity_data_storage.read(token_id, type)
+    let (is_valid : felt) = is_valid_data_storage.read(token_id, type, data, address)
     return (is_valid)
 end
 
@@ -150,7 +150,7 @@ end
 func set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     token_id : Uint256, type : felt, data : felt
 ):
-    identityData_storage.write(token_id, type, data)
+    identity_data_storage.write(token_id, type, data)
     return ()
 end
 
@@ -159,7 +159,7 @@ func confirm_validity{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_ch
     token_id : Uint256, type : felt, data : felt
 ):
     let (address) = get_caller_address()
-    isValidData_storage.write(token_id, type, data, address, 1)
+    is_valid_data_storage.write(token_id, type, data, address, 1)
     return ()
 end
 
