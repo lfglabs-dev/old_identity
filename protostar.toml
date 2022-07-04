@@ -6,5 +6,5 @@ libs_path = "lib"
 
 ["protostar.contracts"]
 main = [
-    "src/main.cairo",
+    "src/StarknetID.cairo",
 ]

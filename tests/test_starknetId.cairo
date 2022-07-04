@@ -5,7 +5,7 @@ from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import get_caller_address
 
 ## Import functions
-from src.StarknetId import confirm_validity, is_valid_data_storage, set_data, identity_data_storage, mint, owner_of
+from src.StarknetID import confirm_validity, is_valid_data_storage, set_data, identity_data_storage, mint, owner_of
 
 @external
 func test_confirm_validity{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():

@@ -34,3 +34,8 @@ is_valid(token_id, 'discord', 707979046952239197, verifier_addr)
 # get data only if verified
 get_valid_data(token_id, 'discord', verifier_addr)
 ```
+
+## Building/testing
+
+Testing: ``protostar test --cairo-path ./lib/cairo_contracts/src/``
+BUilding: ``protostar build --cairo-path ./lib/cairo_contracts/src/``
