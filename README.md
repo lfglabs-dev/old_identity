@@ -3,8 +3,8 @@
 This contract is written in Cairo. It allows to mint identity nfts.
 
 ## Official addresses of deployment:
-Goerli: ``xxx```
-Mainnet: ``xxx```
+Goerli: ``xxx``
+Mainnet: ``xxx``
 
 ## Usage
 
