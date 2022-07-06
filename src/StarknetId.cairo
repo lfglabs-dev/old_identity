@@ -10,7 +10,11 @@ from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 # Events
 #
 @event
-func data_update(token_id : Uint256, type : felt, data : felt):
+func DataUpdate(token_id : Uint256, type : felt, data : felt):
+end
+
+@event
+func VerifiedData(token_id : Uint256, type : felt, data : felt, verifier : felt):
 end
 
 #
@@ -164,7 +168,7 @@ func set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}
     let (owner) = ERC721.owner_of(token_id)
     let (caller) = get_caller_address()
     assert owner = caller
-    data_update.emit(token_id, type, data)
+    DataUpdate.emit(token_id, type, data)
     identity_data_storage.write(token_id, type, data)
     return ()
 end
@@ -174,6 +178,7 @@ func confirm_validity{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_ch
     token_id : Uint256, type : felt, data : felt
 ):
     let (address) = get_caller_address()
+    VerifiedData.emit(token_id, type, data, address)
     is_valid_data_storage.write(token_id, type, data, address, 1)
     return ()
 end
