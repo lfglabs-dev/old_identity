@@ -58,7 +58,7 @@ func symbol{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}()
 end
 
 @view
-func balance_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func balanceOf{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owner : felt
 ) -> (balance : Uint256):
     let (balance : Uint256) = ERC721.balance_of(owner)
@@ -66,7 +66,7 @@ func balance_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_pt
 end
 
 @view
-func owner_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func ownerOf{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256
 ) -> (owner : felt):
     let (owner : felt) = ERC721.owner_of(token_id)
@@ -74,7 +74,7 @@ func owner_of{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}
 end
 
 @view
-func get_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func getApproved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256
 ) -> (approved : felt):
     let (approved : felt) = ERC721.get_approved(token_id)
@@ -82,7 +82,7 @@ func get_approved{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_
 end
 
 @view
-func is_approved_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func isApprovedForAll{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     owner : felt, operator : felt
 ) -> (is_approved : felt):
     let (is_approved : felt) = ERC721.is_approved_for_all(owner, operator)
@@ -135,7 +135,7 @@ func approve{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
 end
 
 @external
-func set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func setApprovalForAll{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     operator : felt, approved : felt
 ):
     ERC721.set_approval_for_all(operator, approved)
@@ -143,7 +143,7 @@ func set_approval_for_all{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, rang
 end
 
 @external
-func transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+func transferFrom{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     _from : felt, to : felt, token_id : Uint256
 ):
     ERC721.transfer_from(_from, to, token_id)
@@ -151,7 +151,7 @@ func transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check
 end
 
 @external
-func safe_transfer_from{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+func safeTransferFrom{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
     _from : felt, to : felt, token_id : Uint256, data_len : felt, data : felt*
 ):
     ERC721.safe_transfer_from(_from, to, token_id, data_len, data)
