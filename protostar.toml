@@ -5,6 +5,7 @@ protostar_version = "0.2.5"
 libs_path = "lib"
 
 ["protostar.contracts"]
-starknet_id = [
-    "src/StarknetID.cairo",
-]
+starknet_id = ["src/StarknetID.cairo"]
+
+["protostar.shared_command_configs"]
+cairo_path = ["./lib/cairo_contracts/src"]
