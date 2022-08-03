@@ -12,11 +12,11 @@ from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 # Events
 #
 @event
-func DataUpdate(token_id : Uint256, field : felt, data : felt):
+func UserDataUpdate(token_id : Uint256, field : felt, data : felt):
 end
 
 @event
-func VerifiedData(token_id : Uint256, field : felt, data : felt, verifier : felt):
+func VerifierDataUpdate(token_id : Uint256, field : felt, data : felt, verifier : felt):
 end
 
 #
@@ -34,13 +34,11 @@ end
 #
 
 @storage_var
-func identity_data_storage(token_id : Uint256, field : felt) -> (data : felt):
+func user_data(token_id : Uint256, field : felt) -> (data : felt):
 end
 
 @storage_var
-func is_valid_data_storage(tokenid : Uint256, field : felt, data : felt, address : felt) -> (
-    rep : felt
-):
+func verifier_data(tokenid : Uint256, field : felt, address : felt) -> (data : felt):
 end
 
 @storage_var
@@ -171,33 +169,30 @@ end
 # STARKNET ID specific
 #
 @view
-func get_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func get_user_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256, field : felt
 ) -> (data : felt):
-    let (data : felt) = identity_data_storage.read(token_id, field)
+    let (data : felt) = user_data.read(token_id, field)
     return (data)
 end
 
 @view
-func get_valid_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func get_verifier_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256, field : felt, address : felt
 ) -> (data : felt):
-    let (data : felt) = identity_data_storage.read(token_id, field)
-    let (is_valid : felt) = is_valid_data_storage.read(token_id, field, data, address)
-    if is_valid == 1:
-        return (data)
-    else:
-        return (0)
-    end
+    let (data : felt) = verifier_data.read(token_id, field, address)
+    return (data)
 end
 
 @view
-func is_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+func get_confirmed_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     token_id : Uint256, field : felt, address : felt
-) -> (is_valid : felt):
-    let (data : felt) = identity_data_storage.read(token_id, field)
-    let (is_valid : felt) = is_valid_data_storage.read(token_id, field, data, address)
-    return (is_valid)
+) -> (data : felt):
+    # returns data if user_data = verifier_data
+    let (found_user_data : felt) = user_data.read(token_id, field)
+    let (found_verifier_data : felt) = verifier_data.read(token_id, field, address)
+    assert found_user_data = found_verifier_data
+    return (found_user_data)
 end
 
 #
@@ -237,29 +232,8 @@ func safeTransferFrom{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_ch
 end
 
 #
-# STARKNET ID specific
+# NFT specific
 #
-@external
-func set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-    token_id : Uint256, field : felt, data : felt
-):
-    let (owner) = ERC721.owner_of(token_id)
-    let (caller) = get_caller_address()
-    assert owner = caller
-    DataUpdate.emit(token_id, field, data)
-    identity_data_storage.write(token_id, field, data)
-    return ()
-end
-
-@external
-func confirm_validity{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-    token_id : Uint256, field : felt, data : felt
-):
-    let (address) = get_caller_address()
-    VerifiedData.emit(token_id, field, data, address)
-    is_valid_data_storage.write(token_id, field, data, address, 1)
-    return ()
-end
 
 @external
 func mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(tokenId : Uint256):
@@ -287,5 +261,30 @@ func _set_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}
     tempvar index = tokenURI_len - 1
     custom_uri.write(token_id, index, [tokenURI] + 1)
     _set_uri(token_id, tokenURI_len - 1, tokenURI + 1)
+    return ()
+end
+
+#
+# STARKNET ID specific
+#
+@external
+func set_user_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+    token_id : Uint256, field : felt, data : felt
+):
+    let (owner) = ERC721.owner_of(token_id)
+    let (caller) = get_caller_address()
+    assert owner = caller
+    UserDataUpdate.emit(token_id, field, data)
+    user_data.write(token_id, field, data)
+    return ()
+end
+
+@external
+func set_verifier_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
+    token_id : Uint256, field : felt, data : felt
+):
+    let (address) = get_caller_address()
+    VerifierDataUpdate.emit(token_id, field, data, address)
+    verifier_data.write(token_id, field, address, data)
     return ()
 end

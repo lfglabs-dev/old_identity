@@ -7,10 +7,10 @@ from starkware.cairo.common.alloc import alloc
 
 # # Import functions
 from src.StarknetID import (
-    confirm_validity,
-    is_valid_data_storage,
-    set_data,
-    identity_data_storage,
+    set_verifier_data,
+    verifier_data,
+    set_user_data,
+    user_data,
     mint,
     tokenURI,
     ownerOf,
@@ -18,7 +18,7 @@ from src.StarknetID import (
 )
 
 @external
-func test_confirm_validity{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
+func test_set_verifier_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
     %{ stop_prank_callable = start_prank(123) %}
 
@@ -26,18 +26,18 @@ func test_confirm_validity{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, ran
     let type = 19256242726728292  # # Discord
     let data = 58596348113441803209962597  # # 0xBenaparte
 
-    confirm_validity(token_id, type, data)
+    set_verifier_data(token_id, type, data)
 
     # # valid case
-    let (isValidData) = is_valid_data_storage.read(token_id, type, data, 123)
-    assert isValidData = 1
+    let (isValidData) = verifier_data.read(token_id, type, 123)
+    assert isValidData = data
 
     # # not valid case
     let token_id_2 : Uint256 = Uint256(2, 0)
     let type_2 = 'Twitter'  # # Discord
     let data_2 = 'Thomas'  # # 0xBenaparte
 
-    let (isValidData) = is_valid_data_storage.read(token_id_2, type_2, data_2, 123)
+    let (isValidData) = verifier_data.read(token_id_2, type_2, 123)
     assert isValidData = 0
     %{ stop_prank_callable() %}
     return ()
@@ -60,7 +60,7 @@ func test_mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr
 end
 
 @external
-func test_set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
+func test_set_user_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}():
     alloc_locals
 
     %{ stop_prank_callable = start_prank(123) %}
@@ -70,17 +70,17 @@ func test_set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check
     let type = 19256242726728292  # # Discord
     let data = 58596348113441803209962597  # # 0xBenaparte
 
-    set_data(token_id, type, data)
+    set_user_data(token_id, type, data)
 
     # valid case
-    let (identityData) = identity_data_storage.read(token_id, type)
+    let (identityData) = user_data.read(token_id, type)
     assert identityData = 58596348113441803209962597
 
     # not valid case
     let type_2 = 'Twitter'  # # Discord
     let token_id_2 : Uint256 = Uint256(2, 0)
 
-    let (identityData) = identity_data_storage.read(token_id, type_2)
+    let (identityData) = user_data.read(token_id, type_2)
 
     assert identityData = 0
     %{ stop_prank_callable() %}
