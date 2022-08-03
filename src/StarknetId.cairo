@@ -12,11 +12,11 @@ from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 # Events
 #
 @event
-func DataUpdate(token_id : Uint256, type : felt, data : felt):
+func DataUpdate(token_id : Uint256, field : felt, data : felt):
 end
 
 @event
-func VerifiedData(token_id : Uint256, type : felt, data : felt, verifier : felt):
+func VerifiedData(token_id : Uint256, field : felt, data : felt, verifier : felt):
 end
 
 #
@@ -34,11 +34,11 @@ end
 #
 
 @storage_var
-func identity_data_storage(token_id : Uint256, type : felt) -> (data : felt):
+func identity_data_storage(token_id : Uint256, field : felt) -> (data : felt):
 end
 
 @storage_var
-func is_valid_data_storage(tokenid : Uint256, type : felt, data : felt, address : felt) -> (
+func is_valid_data_storage(tokenid : Uint256, field : felt, data : felt, address : felt) -> (
     rep : felt
 ):
 end
@@ -172,18 +172,18 @@ end
 #
 @view
 func get_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    token_id : Uint256, type : felt
+    token_id : Uint256, field : felt
 ) -> (data : felt):
-    let (data : felt) = identity_data_storage.read(token_id, type)
+    let (data : felt) = identity_data_storage.read(token_id, field)
     return (data)
 end
 
 @view
 func get_valid_data{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    token_id : Uint256, type : felt, address : felt
+    token_id : Uint256, field : felt, address : felt
 ) -> (data : felt):
-    let (data : felt) = identity_data_storage.read(token_id, type)
-    let (is_valid : felt) = is_valid_data_storage.read(token_id, type, data, address)
+    let (data : felt) = identity_data_storage.read(token_id, field)
+    let (is_valid : felt) = is_valid_data_storage.read(token_id, field, data, address)
     if is_valid == 1:
         return (data)
     else:
@@ -193,10 +193,10 @@ end
 
 @view
 func is_valid{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    token_id : Uint256, type : felt, address : felt
+    token_id : Uint256, field : felt, address : felt
 ) -> (is_valid : felt):
-    let (data : felt) = identity_data_storage.read(token_id, type)
-    let (is_valid : felt) = is_valid_data_storage.read(token_id, type, data, address)
+    let (data : felt) = identity_data_storage.read(token_id, field)
+    let (is_valid : felt) = is_valid_data_storage.read(token_id, field, data, address)
     return (is_valid)
 end
 
@@ -241,23 +241,23 @@ end
 #
 @external
 func set_data{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-    token_id : Uint256, type : felt, data : felt
+    token_id : Uint256, field : felt, data : felt
 ):
     let (owner) = ERC721.owner_of(token_id)
     let (caller) = get_caller_address()
     assert owner = caller
-    DataUpdate.emit(token_id, type, data)
-    identity_data_storage.write(token_id, type, data)
+    DataUpdate.emit(token_id, field, data)
+    identity_data_storage.write(token_id, field, data)
     return ()
 end
 
 @external
 func confirm_validity{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(
-    token_id : Uint256, type : felt, data : felt
+    token_id : Uint256, field : felt, data : felt
 ):
     let (address) = get_caller_address()
-    VerifiedData.emit(token_id, type, data, address)
-    is_valid_data_storage.write(token_id, type, data, address, 1)
+    VerifiedData.emit(token_id, field, data, address)
+    is_valid_data_storage.write(token_id, field, data, address, 1)
     return ()
 end
 
