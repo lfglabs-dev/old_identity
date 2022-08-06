@@ -4,7 +4,7 @@ This contract is written in Cairo. It allows to mint identity nfts.
 The nft contains fields associated with values. For each field, there can be a user value or values certified by other contracts. In some cases there can be both.
 
 ## Official addresses of deployment:
-- Goerli: ``0x027cac460bfddb38ee6403490fb23836dc047410edcf6cba5167ef04cfe2e821``
+- Goerli: ``0x0798e884450c19e072d6620fefdbeb7387d0453d3fd51d95f5ace1f17633d88b``
 - Goerli (old version): ``0x04564121a7ad7757c425e4dac1a855998bf186303107d1c28edbf0de420e7023``
 - Mainnet: ``none``
 

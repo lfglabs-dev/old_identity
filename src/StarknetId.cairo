@@ -1,7 +1,7 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.uint256 import Uint256
+from starkware.cairo.common.uint256 import Uint256, uint256_unsigned_div_rem
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.registers import get_label_location
 from starkware.cairo.common.alloc import alloc
@@ -39,10 +39,6 @@ end
 
 @storage_var
 func verifier_data(tokenid : Uint256, field : felt, address : felt) -> (data : felt):
-end
-
-@storage_var
-func custom_uri(tokenid : Uint256, index : felt) -> (value : felt):
 end
 
 #
@@ -97,72 +93,74 @@ end
 func tokenURI{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
     tokenId : Uint256
 ) -> (tokenURI_len : felt, tokenURI : felt*):
-    let (tokenURI_len : felt, tokenURI : felt*) = get_uri(tokenId, 0)
+    alloc_locals
 
-    if tokenURI_len == 0:
-        let (data_address) = get_label_location(default_uri)
-        return (40, cast(data_address, felt*))
-    else:
-        return (tokenURI_len, tokenURI)
-    end
+    # https://goerli.indexer.starknet.id/uri?id=
+    let (array) = alloc()
 
-    default_uri:
-    dw 104
-    dw 116
-    dw 116
-    dw 112
-    dw 115
-    dw 58
-    dw 47
-    dw 47
-    dw 119
-    dw 119
-    dw 119
-    dw 46
-    dw 115
-    dw 116
-    dw 97
-    dw 114
-    dw 107
-    dw 110
-    dw 101
-    dw 116
-    dw 46
-    dw 105
-    dw 100
-    dw 47
-    dw 100
-    dw 101
-    dw 102
-    dw 97
-    dw 117
-    dw 108
-    dw 116
-    dw 47
-    dw 117
-    dw 114
-    dw 105
-    dw 46
-    dw 106
-    dw 115
-    dw 111
-    dw 110
+    assert array[0] = 104
+    assert array[1] = 116
+    assert array[2] = 116
+    assert array[3] = 112
+    assert array[4] = 115
+    assert array[5] = 58
+    assert array[6] = 47
+    assert array[7] = 47
+    assert array[8] = 103
+    assert array[9] = 111
+    assert array[10] = 101
+    assert array[11] = 114
+    assert array[12] = 108
+    assert array[13] = 105
+    assert array[14] = 46
+    assert array[15] = 105
+    assert array[16] = 110
+    assert array[17] = 100
+    assert array[18] = 101
+    assert array[19] = 120
+    assert array[20] = 101
+    assert array[21] = 114
+    assert array[22] = 46
+    assert array[23] = 115
+    assert array[24] = 116
+    assert array[25] = 97
+    assert array[26] = 114
+    assert array[27] = 107
+    assert array[28] = 110
+    assert array[29] = 101
+    assert array[30] = 116
+    assert array[31] = 46
+    assert array[32] = 105
+    assert array[33] = 100
+    assert array[34] = 47
+    assert array[35] = 117
+    assert array[36] = 114
+    assert array[37] = 105
+    assert array[38] = 63
+    assert array[39] = 105
+    assert array[40] = 100
+    assert array[41] = 61
+    let (size) = append_number_ascii(tokenId, array + 42)
+
+    return (42 + size, array)
 end
 
-func get_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    token_id : Uint256, start_index : felt
-) -> (tokenURI_len : felt, tokenURI : felt*):
+func append_number_ascii{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    num : Uint256, arr : felt*
+) -> (added_len : felt):
     alloc_locals
-    let (value : felt) = custom_uri.read(token_id, start_index)
-    if value == 0:
-        let (uri : felt*) = alloc()
-        return (0, uri)
+    local ten : Uint256 = Uint256(10, 0)
+    let (q : Uint256, r : Uint256) = uint256_unsigned_div_rem(num, ten)
+    let digit = r.low + 48 # ascii
+
+    if q.low == 0 and q.high == 0:
+        assert arr[0] = digit
+        return (1)
     end
 
-    let (uri_len, uri) = get_uri(token_id, start_index + 1)
-    assert uri[uri_len] = value - 1
-
-    return (uri_len + 1, uri)
+    let (added_len) = append_number_ascii(q, arr)
+    assert arr[added_len] = digit
+    return (added_len + 1)
 end
 
 #
@@ -239,28 +237,6 @@ end
 func mint{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}(tokenId : Uint256):
     let (to) = get_caller_address()
     ERC721._mint(to, tokenId)
-    return ()
-end
-
-@external
-func set_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    token_id : Uint256, tokenURI_len : felt, tokenURI : felt*
-):
-    let (owner) = ERC721.owner_of(token_id)
-    let (caller) = get_caller_address()
-    assert owner = caller
-    return _set_uri(token_id, tokenURI_len, tokenURI)
-end
-
-func _set_uri{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    token_id : Uint256, tokenURI_len : felt, tokenURI : felt*
-):
-    if tokenURI_len == 0:
-        return ()
-    end
-    tempvar index = tokenURI_len - 1
-    custom_uri.write(token_id, index, [tokenURI] + 1)
-    _set_uri(token_id, tokenURI_len - 1, tokenURI + 1)
     return ()
 end
 

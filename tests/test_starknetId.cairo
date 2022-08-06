@@ -14,7 +14,7 @@ from src.StarknetID import (
     mint,
     tokenURI,
     ownerOf,
-    set_uri,
+    append_number_ascii,
 )
 
 @external
@@ -93,23 +93,32 @@ func test_uri{pedersen_ptr : HashBuiltin*, syscall_ptr : felt*, range_check_ptr}
 
     %{ stop_prank_callable = start_prank(123) %}
 
-    let token_id = Uint256(1, 0)
+    let token_id = Uint256(256, 0)
     mint(token_id)
     let (len_uri, uri) = tokenURI(token_id)
-    assert 40 = len_uri
+    assert 45 = len_uri
     assert uri[0] = 104
-    assert uri[39] = 110
+    assert uri[42] = 48+2
+    assert uri[43] = 48+5
+    assert uri[44] = 48+6
 
+    return ()
+end
+
+@external
+func test_append_number_ascii{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}():
+    alloc_locals
+    let number = Uint256(123450, 0)
     let (arr) = alloc()
-    assert arr[0] = 12345
-
-    set_uri(token_id, 1, arr)
-
-    let (len_uri, uri) = tokenURI(token_id)
-    assert 1 = len_uri
-    assert 12345 = uri[0]
-
-    %{ stop_prank_callable() %}
-
+    assert arr[0] = 1234567898765
+    let (added_len) = append_number_ascii(number, arr + 1)
+    assert added_len = 6
+    assert arr[0] = 1234567898765
+    assert arr[1] = 48+1
+    assert arr[2] = 48+2
+    assert arr[3] = 48+3
+    assert arr[4] = 48+4
+    assert arr[5] = 48+5
+    assert arr[6] = 48+0
     return ()
 end
