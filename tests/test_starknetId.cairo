@@ -13,7 +13,7 @@ from src.StarknetID import (
     user_data,
     mint,
     tokenURI,
-    ownerOf,
+    owner_of,
     append_number_ascii,
 )
 
@@ -22,7 +22,7 @@ func test_set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, rang
     alloc_locals;
     %{ stop_prank_callable = start_prank(123) %}
 
-    let token_id: Uint256 = Uint256(1, 0);
+    let token_id = 1;
     let type = 19256242726728292;  // # Discord
     let data = 58596348113441803209962597;  // # 0xBenaparte
 
@@ -33,7 +33,7 @@ func test_set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, rang
     assert isValidData = data;
 
     // # not valid case
-    let token_id_2: Uint256 = Uint256(2, 0);
+    let token_id_2 = 2;
     let type_2 = 'Twitter';  // # Discord
     let data_2 = 'Thomas';  // # 0xBenaparte
 
@@ -48,13 +48,13 @@ func test_mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
     alloc_locals;
     %{ stop_prank_callable = start_prank(123) %}
 
-    let token_id: Uint256 = Uint256(1, 0);
+    let token_id = 1;
 
     mint(token_id);
 
     // # valid case
-    let (owner_ofNftMinted) = ownerOf(token_id);
-    assert owner_ofNftMinted = 123;
+    let (ownerOfNftMinted) = owner_of(token_id);
+    assert ownerOfNftMinted = 123;
     %{ stop_prank_callable() %}
     return ();
 }
@@ -65,7 +65,7 @@ func test_set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_ch
 
     %{ stop_prank_callable = start_prank(123) %}
 
-    let token_id: Uint256 = Uint256(1, 0);
+    let token_id = 1;
     mint(token_id);
     let type = 19256242726728292;  // # Discord
     let data = 58596348113441803209962597;  // # 0xBenaparte
@@ -78,7 +78,7 @@ func test_set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_ch
 
     // not valid case
     let type_2 = 'Twitter';  // # Discord
-    let token_id_2: Uint256 = Uint256(2, 0);
+    let token_id_2 = 2;
 
     let (identityData) = user_data.read(token_id, type_2);
 
@@ -93,9 +93,9 @@ func test_uri{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}()
 
     %{ stop_prank_callable = start_prank(123) %}
 
-    let token_id = Uint256(256, 0);
+    let token_id = 256;
     mint(token_id);
-    let (len_uri, uri) = tokenURI(token_id);
+    let (len_uri, uri) = tokenURI(Uint256(token_id, 0));
     assert 45 = len_uri;
     assert uri[0] = 104;
     assert uri[42] = 48 + 2;

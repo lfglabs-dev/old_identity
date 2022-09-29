@@ -4,6 +4,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256, uint256_unsigned_div_rem
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.registers import get_label_location
+from starkware.cairo.common.math import assert_le_felt
 from starkware.cairo.common.alloc import alloc
 
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
@@ -12,11 +13,11 @@ from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 // Events
 //
 @event
-func UserDataUpdate(token_id: Uint256, field: felt, data: felt) {
+func UserDataUpdate(token_id: felt, field: felt, data: felt) {
 }
 
 @event
-func VerifierDataUpdate(token_id: Uint256, field: felt, data: felt, verifier: felt) {
+func VerifierDataUpdate(token_id: felt, field: felt, data: felt, verifier: felt) {
 }
 
 //
@@ -34,11 +35,11 @@ func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 //
 
 @storage_var
-func user_data(token_id: Uint256, field: felt) -> (data: felt) {
+func user_data(token_id: felt, field: felt) -> (data: felt) {
 }
 
 @storage_var
-func verifier_data(tokenid: Uint256, field: felt, address: felt) -> (data: felt) {
+func verifier_data(tokenid: felt, field: felt, address: felt) -> (data: felt) {
 }
 
 //
@@ -70,6 +71,14 @@ func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     token_id: Uint256
 ) -> (owner: felt) {
     let (owner: felt) = ERC721.owner_of(token_id);
+    return (owner,);
+}
+
+@view
+func owner_of{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(token_id: felt) -> (
+    owner: felt
+) {
+    let (owner: felt) = ERC721.owner_of(Uint256(token_id, 0));
     return (owner,);
 }
 
@@ -168,7 +177,7 @@ func append_number_ascii{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
 //
 @view
 func get_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: Uint256, field: felt
+    token_id: felt, field: felt
 ) -> (data: felt) {
     let (data: felt) = user_data.read(token_id, field);
     return (data,);
@@ -176,7 +185,7 @@ func get_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
 @view
 func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: Uint256, field: felt, address: felt
+    token_id: felt, field: felt, address: felt
 ) -> (data: felt) {
     let (data: felt) = verifier_data.read(token_id, field, address);
     return (data,);
@@ -184,7 +193,7 @@ func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 
 @view
 func get_confirmed_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: Uint256, field: felt, address: felt
+    token_id: felt, field: felt, address: felt
 ) -> (data: felt) {
     // returns data if user_data = verifier_data
     let (found_user_data: felt) = user_data.read(token_id, field);
@@ -234,9 +243,10 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
 //
 
 @external
-func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(tokenId: Uint256) {
+func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token_id: felt) {
     let (to) = get_caller_address();
-    ERC721._mint(to, tokenId);
+    assert_le_felt(token_id, (2 ** 128) - 1);
+    ERC721._mint(to, Uint256(token_id, 0));
     return ();
 }
 
@@ -245,9 +255,9 @@ func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token
 //
 @external
 func set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    token_id: Uint256, field: felt, data: felt
+    token_id: felt, field: felt, data: felt
 ) {
-    let (owner) = ERC721.owner_of(token_id);
+    let (owner) = ERC721.owner_of(Uint256(token_id, 0));
     let (caller) = get_caller_address();
     assert owner = caller;
     UserDataUpdate.emit(token_id, field, data);
@@ -257,7 +267,7 @@ func set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_p
 
 @external
 func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    token_id: Uint256, field: felt, data: felt
+    token_id: felt, field: felt, data: felt
 ) {
     let (address) = get_caller_address();
     VerifierDataUpdate.emit(token_id, field, data, address);
