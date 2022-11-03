@@ -6,8 +6,8 @@ from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.registers import get_label_location
 from starkware.cairo.common.math import assert_le_felt
 from starkware.cairo.common.alloc import alloc
-
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
+from cairo_contracts.src.openzeppelin.upgrades.library import Proxy
 
 //
 // Events
@@ -21,17 +21,20 @@ func VerifierDataUpdate(token_id: felt, field: felt, data: felt, verifier: felt)
 }
 
 //
-// Constructor
+// Initializer
 //
 
-@constructor
-func constructor{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+@external
+func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    proxy_admin: felt
+) {
+    Proxy.initializer(proxy_admin);
     ERC721.initializer('Starknet.id', 'ID');
     return ();
 }
 
 //
-// Storage Vars
+// Storage
 //
 
 @storage_var
@@ -203,7 +206,7 @@ func get_confirmed_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 }
 
 //
-// Externals
+// Setters
 //
 
 @external
@@ -272,5 +275,17 @@ func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
     let (address) = get_caller_address();
     VerifierDataUpdate.emit(token_id, field, data, address);
     verifier_data.write(token_id, field, address, data);
+    return ();
+}
+
+//
+// UPGRADABILITY
+//
+@external
+func upgrade{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
+    new_implementation : felt
+) {
+    Proxy.assert_only_admin();
+    Proxy._set_implementation_hash(new_implementation);
     return ();
 }

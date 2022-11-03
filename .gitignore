@@ -1,3 +1,5 @@
+migrations/*.json
+
 ### Nile ###
 artifacts
 *.deployments.txt
