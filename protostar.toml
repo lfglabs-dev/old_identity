@@ -6,7 +6,7 @@ libs_path = "lib"
 
 ["protostar.contracts"]
 logic = ["src/StarknetID.cairo"]
-proxy = ["src/Proxy.cairo"]
+proxy = ["lib/cairo_contracts/src/openzeppelin/upgrades/presets/Proxy.cairo"]
 
 ["protostar.shared_command_configs"]
 cairo_path = ["./lib/cairo_contracts/src"]

@@ -282,8 +282,8 @@ func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
 // UPGRADABILITY
 //
 @external
-func upgrade{syscall_ptr : felt*, pedersen_ptr : HashBuiltin*, range_check_ptr}(
-    new_implementation : felt
+func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    new_implementation: felt
 ) {
     Proxy.assert_only_admin();
     Proxy._set_implementation_hash(new_implementation);
