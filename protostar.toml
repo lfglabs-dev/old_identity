@@ -1,7 +1,7 @@
 [project]
 protostar-version = "0.7.0"
 lib-path = "lib"
-cairo_path = ["./lib/cairo_contracts/src"]
+cairo-path = ["./lib/cairo_contracts/src"]
 
 [contracts]
 logic = ["src/StarknetID.cairo"]
