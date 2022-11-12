@@ -6,7 +6,7 @@ from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.alloc import alloc
 
 // # Import functions
-from src.StarknetID import (
+from src.StarknetId import (
     set_verifier_data,
     verifier_data,
     set_user_data,
