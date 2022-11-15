@@ -7,11 +7,14 @@ from starknet_py.transactions.deploy import make_deploy_tx
 from starknet_py.compile.compiler import create_contract_class
 
 import asyncio
+import sys
+
+argv = sys.argv
 
 deployer_account_addr = (
     0x048F24D0D0618FA31813DB91A45D8BE6C50749E5E19EC699092CE29ABE809294
 )
-deployer_account_private_key = 1
+deployer_account_private_key = int(argv[1])
 admin = 0x048F24D0D0618FA31813DB91A45D8BE6C50749E5E19EC699092CE29ABE809294
 network: Network = "testnet"
 chain: StarknetChainId = StarknetChainId.TESTNET
