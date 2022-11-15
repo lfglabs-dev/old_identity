@@ -2,5 +2,5 @@ ecdsa
 fastecdsa
 sympy
 cairo-lang
-cairo-nile
+starknet-py
 black
