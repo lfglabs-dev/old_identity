@@ -16,18 +16,26 @@ deployer_account_addr = (
 )
 deployer_account_private_key = int(argv[1])
 admin = 0x048F24D0D0618FA31813DB91A45D8BE6C50749E5E19EC699092CE29ABE809294
-network: Network = "testnet"
-chain: StarknetChainId = StarknetChainId.TESTNET
+# MAINNET: https://alpha-mainnet.starknet.io
+# TESTNET: https://alpha4.starknet.io
+# TESTNET2: https://alpha4-2.starknet.io
+network_base_url = "https://alpha4-2.starknet.io/"
+chainid: StarknetChainId = StarknetChainId.TESTNET
 max_fee = int(1e16)
 
 
 async def main():
-    client = GatewayClient(net=network)
+    client = GatewayClient(
+        net={
+            "feeder_gateway_url": network_base_url + "feeder_gateway",
+            "gateway_url": network_base_url + "gateway",
+        }
+    )
     account = AccountClient(
         client=client,
         address=deployer_account_addr,
         key_pair=KeyPair.from_private_key(deployer_account_private_key),
-        chain=chain,
+        chain=chainid,
         supported_tx_version=1,
     )
     logic_file = open("./build/logic.json", "r")
