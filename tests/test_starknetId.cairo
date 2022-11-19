@@ -96,7 +96,7 @@ func test_uri{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}()
     let token_id = 256;
     mint(token_id);
     let (len_uri, uri) = tokenURI(Uint256(token_id, 0));
-    assert 45 = len_uri;
+    assert 38 = len_uri;
     assert uri[0] = 104;
     assert uri[42] = 48 + 2;
     assert uri[43] = 48 + 5;
