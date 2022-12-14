@@ -4,5 +4,5 @@ lib-path = "lib"
 cairo-path = ["lib", "./lib/cairo_contracts/src"]
 
 [contracts]
-logic = ["src/StarknetId.cairo"]
+starknetid = ["src/StarknetId.cairo"]
 proxy = ["lib/cairo_contracts/src/openzeppelin/upgrades/presets/Proxy.cairo"]
