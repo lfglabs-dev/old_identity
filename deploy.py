@@ -1,9 +1,10 @@
 from starkware.starknet.compiler.compile import get_selector_from_name
 from starknet_py.net.models.chains import StarknetChainId
+from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.contract import Contract
 import asyncio
+import json
 import sys
 
 argv = sys.argv
@@ -12,7 +13,6 @@ deployer_account_addr = (
     0x048F24D0D0618FA31813DB91A45D8BE6C50749E5E19EC699092CE29ABE809294
 )
 deployer_account_private_key = int(argv[1])
-universal_deployer = 0x041A78E741E5AF2FEC34B695679BC6891742439F7AFB8484ECD7766661AD02BF
 token = argv[2] if len(argv) > 2 else None
 admin = 0x048F24D0D0618FA31813DB91A45D8BE6C50749E5E19EC699092CE29ABE809294
 # MAINNET: https://alpha-mainnet.starknet.io/
@@ -21,50 +21,8 @@ admin = 0x048F24D0D0618FA31813DB91A45D8BE6C50749E5E19EC699092CE29ABE809294
 network_base_url = "https://alpha4.starknet.io/"
 chainid: StarknetChainId = StarknetChainId.TESTNET
 max_fee = int(1e16)
-
-DEPLOYER_ABI = [
-    {
-        "data": [
-            {"name": "address", "type": "felt"},
-            {"name": "deployer", "type": "felt"},
-            {"name": "unique", "type": "felt"},
-            {"name": "classHash", "type": "felt"},
-            {"name": "calldata_len", "type": "felt"},
-            {"name": "calldata", "type": "felt*"},
-            {"name": "salt", "type": "felt"},
-        ],
-        "keys": [],
-        "name": "ContractDeployed",
-        "type": "event",
-    },
-    {
-        "name": "deployContract",
-        "type": "function",
-        "inputs": [
-            {"name": "classHash", "type": "felt"},
-            {"name": "salt", "type": "felt"},
-            {"name": "unique", "type": "felt"},
-            {"name": "calldata_len", "type": "felt"},
-            {"name": "calldata", "type": "felt*"},
-        ],
-        "outputs": [{"name": "address", "type": "felt"}],
-    },
-]
-
-
-async def deploy_contract(
-    account_client, class_hash, constructor, salt=0, unique=0
-) -> int:
-    contract = Contract(
-        universal_deployer,
-        DEPLOYER_ABI,
-        account_client,
-    )
-
-    invocation = await contract.functions["deployContract"].invoke(
-        class_hash, salt, unique, constructor, max_fee=max_fee
-    )
-    return invocation.hash
+# deployer_address=0x041A78E741E5AF2FEC34B695679BC6891742439F7AFB8484ECD7766661AD02BF
+deployer = Deployer()
 
 
 async def main():
@@ -93,8 +51,10 @@ async def main():
     print("implementation class hash:", hex(impl_contract_class_hash))
 
     proxy_file = open("./build/proxy.json", "r")
+    proxy_content = proxy_file.read()
+
     declare_contract_tx = await account.sign_declare_transaction(
-        compiled_contract=proxy_file.read(), max_fee=max_fee
+        compiled_contract=proxy_content, max_fee=max_fee
     )
     proxy_file.close()
     proxy_declaration = await client.declare(
@@ -103,19 +63,21 @@ async def main():
     proxy_contract_class_hash = proxy_declaration.class_hash
     print("proxy class hash:", hex(proxy_contract_class_hash))
 
-    tx_hash = await deploy_contract(
-        account,
-        proxy_contract_class_hash,
-        constructor=[
-            impl_contract_class_hash,
-            get_selector_from_name("initializer"),
-            1,
-            admin,
-        ],
+    proxy_json = json.loads(proxy_content)
+    abi = proxy_json["abi"]
+    deploy_call, address = deployer.create_deployment_call(
+        class_hash=proxy_contract_class_hash,
+        abi=abi,
+        calldata={
+            "implementation_hash": impl_contract_class_hash,
+            "selector": get_selector_from_name("initializer"),
+            "calldata": [admin],
+        },
     )
 
-    print("deployment txhash:", hex(tx_hash))
-    # print("proxied contract address:", hex(deployment_resp.contract_address))
+    resp = await account.execute(deploy_call, max_fee=int(1e16))
+    print("deployment txhash:", hex(resp.transaction_hash))
+    print("proxied contract address:", hex(address))
 
 
 if __name__ == "__main__":
