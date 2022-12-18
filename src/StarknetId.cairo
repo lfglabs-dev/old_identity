@@ -26,10 +26,11 @@ func VerifierDataUpdate(token_id: felt, field: felt, data: felt, verifier: felt)
 
 @external
 func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    proxy_admin: felt
+    proxy_admin: felt, uri_base_len: felt, uri_base: felt*
 ) {
     Proxy.initializer(proxy_admin);
     ERC721.initializer('Starknet.id', 'ID');
+    _set_token_uri_base_util(uri_base_len, uri_base);
     return ();
 }
 
@@ -43,6 +44,10 @@ func user_data(token_id: felt, field: felt) -> (data: felt) {
 
 @storage_var
 func verifier_data(tokenid: felt, field: felt, address: felt) -> (data: felt) {
+}
+
+@storage_var
+func token_uri_base(char_id: felt) -> (ascii_code: felt) {
 }
 
 //
@@ -108,50 +113,27 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     alloc_locals;
 
     // https://goerli.indexer.starknet.id/uri?id=
-    let (array) = alloc();
-
-    assert array[0] = 104;
-    assert array[1] = 116;
-    assert array[2] = 116;
-    assert array[3] = 112;
-    assert array[4] = 115;
-    assert array[5] = 58;
-    assert array[6] = 47;
-    assert array[7] = 47;
-    assert array[8] = 105;
-    assert array[9] = 110;
-    assert array[10] = 100;
-    assert array[11] = 101;
-    assert array[12] = 120;
-    assert array[13] = 101;
-    assert array[14] = 114;
-    assert array[15] = 46;
-    assert array[16] = 115;
-    assert array[17] = 116;
-    assert array[18] = 97;
-    assert array[19] = 114;
-    assert array[20] = 107;
-    assert array[21] = 110;
-    assert array[22] = 101;
-    assert array[23] = 116;
-    assert array[24] = 46;
-    assert array[25] = 105;
-    assert array[26] = 100;
-    assert array[27] = 47;
-    assert array[28] = 117;
-    assert array[29] = 114;
-    assert array[30] = 105;
-    assert array[31] = 63;
-    assert array[32] = 105;
-    assert array[33] = 100;
-    assert array[34] = 61;
-
-    let (size) = append_number_ascii(tokenId, array + 35);
-
-    return (35 + size, array);
+    let (arr_len, arr) = read_base_token_uri(0);
+    let (size) = _append_number_ascii(tokenId, arr + arr_len);
+    return (arr_len + size, arr);
 }
 
-func append_number_ascii{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func read_base_token_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(i) -> (
+    arr_len: felt, arr: felt*
+) {
+    let (value) = token_uri_base.read(i);
+    if (value == 0) {
+        let (arr) = alloc();
+        return (0, arr);
+    }
+
+    let (arr_len, arr) = read_base_token_uri(i + 1);
+    let (value) = token_uri_base.read(arr_len);
+    assert arr[arr_len] = value - 1;
+    return (arr_len + 1, arr);
+}
+
+func _append_number_ascii{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     num: Uint256, arr: felt*
 ) -> (added_len: felt) {
     alloc_locals;
@@ -164,7 +146,7 @@ func append_number_ascii{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
         return (1,);
     }
 
-    let (added_len) = append_number_ascii(q, arr);
+    let (added_len) = _append_number_ascii(q, arr);
     assert arr[added_len] = digit;
     return (added_len + 1,);
 }
@@ -273,7 +255,7 @@ func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
 }
 
 //
-// UPGRADABILITY
+// ADMINISTRATION
 //
 @external
 func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
@@ -282,4 +264,24 @@ func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     Proxy.assert_only_admin();
     Proxy._set_implementation_hash(new_implementation);
     return ();
+}
+
+@external
+func set_token_uri_base{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    arr_len: felt, arr: felt*
+) {
+    Proxy.assert_only_admin();
+    _set_token_uri_base_util(arr_len, arr);
+}
+
+func _set_token_uri_base_util{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    arr_len: felt, arr: felt*
+) {
+    if (arr_len == 0) {
+        return ();
+    }
+
+    tempvar next_arr_len = arr_len - 1;
+    token_uri_base.write(next_arr_len, 1 + arr[next_arr_len]);
+    return _set_token_uri_base_util(next_arr_len, arr);
 }

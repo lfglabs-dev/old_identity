@@ -14,7 +14,8 @@ from src.StarknetId import (
     mint,
     tokenURI,
     owner_of,
-    append_number_ascii,
+    _append_number_ascii,
+    _set_token_uri_base_util,
 )
 
 @external
@@ -92,6 +93,46 @@ func test_uri{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}()
     alloc_locals;
 
     %{ stop_prank_callable = start_prank(123) %}
+    _set_token_uri_base_util(
+        35,
+        new (
+            104,
+            116,
+            116,
+            112,
+            115,
+            58,
+            47,
+            47,
+            105,
+            110,
+            100,
+            101,
+            120,
+            101,
+            114,
+            46,
+            115,
+            116,
+            97,
+            114,
+            107,
+            110,
+            101,
+            116,
+            46,
+            105,
+            100,
+            47,
+            117,
+            114,
+            105,
+            63,
+            105,
+            100,
+            61,
+        ),
+    );
 
     let token_id = 256;
     mint(token_id);
@@ -108,10 +149,51 @@ func test_uri{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}()
 @external
 func test_append_number_ascii{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
+    _set_token_uri_base_util(
+        35,
+        new (
+            104,
+            116,
+            116,
+            112,
+            115,
+            58,
+            47,
+            47,
+            105,
+            110,
+            100,
+            101,
+            120,
+            101,
+            114,
+            46,
+            115,
+            116,
+            97,
+            114,
+            107,
+            110,
+            101,
+            116,
+            46,
+            105,
+            100,
+            47,
+            117,
+            114,
+            105,
+            63,
+            105,
+            100,
+            61,
+        ),
+    );
+
     let number = Uint256(123450, 0);
     let (arr) = alloc();
     assert arr[0] = 1234567898765;
-    let (added_len) = append_number_ascii(number, arr + 1);
+    let (added_len) = _append_number_ascii(number, arr + 1);
     assert added_len = 6;
     assert arr[0] = 1234567898765;
     assert arr[1] = 48 + 1;
