@@ -22,6 +22,7 @@ chainid: StarknetChainId = StarknetChainId.TESTNET
 max_fee = int(1e16)
 # deployer_address=0x041A78E741E5AF2FEC34B695679BC6891742439F7AFB8484ECD7766661AD02BF
 deployer = Deployer()
+token_uri_base = "https://goerli.indexer.starknet.id/uri?id="
 
 
 async def main():
@@ -66,7 +67,7 @@ async def main():
         calldata={
             "implementation_hash": impl_contract_class_hash,
             "selector": get_selector_from_name("initializer"),
-            "calldata": [admin],
+            "calldata": [admin, len(token_uri_base), *map(ord, token_uri_base)],
         },
     )
 
