@@ -13,7 +13,6 @@ deployer_account_addr = (
     0x048F24D0D0618FA31813DB91A45D8BE6C50749E5E19EC699092CE29ABE809294
 )
 deployer_account_private_key = int(argv[1])
-token = argv[2] if len(argv) > 2 else None
 admin = 0x048F24D0D0618FA31813DB91A45D8BE6C50749E5E19EC699092CE29ABE809294
 # MAINNET: https://alpha-mainnet.starknet.io/
 # TESTNET: https://alpha4.starknet.io/
@@ -44,9 +43,7 @@ async def main():
         compiled_contract=impl_file.read(), max_fee=max_fee
     )
     impl_file.close()
-    impl_declaration = await client.declare(
-        transaction=declare_contract_tx, token=token
-    )
+    impl_declaration = await client.declare(transaction=declare_contract_tx)
     impl_contract_class_hash = impl_declaration.class_hash
     print("implementation class hash:", hex(impl_contract_class_hash))
 
@@ -57,9 +54,7 @@ async def main():
         compiled_contract=proxy_content, max_fee=max_fee
     )
     proxy_file.close()
-    proxy_declaration = await client.declare(
-        transaction=declare_contract_tx, token=token
-    )
+    proxy_declaration = await client.declare(transaction=declare_contract_tx)
     proxy_contract_class_hash = proxy_declaration.class_hash
     print("proxy class hash:", hex(proxy_contract_class_hash))
 
