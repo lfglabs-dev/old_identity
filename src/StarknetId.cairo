@@ -272,6 +272,7 @@ func set_token_uri_base{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 ) {
     Proxy.assert_only_admin();
     _set_token_uri_base_util(arr_len, arr);
+    return ();
 }
 
 func _set_token_uri_base_util{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
