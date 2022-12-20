@@ -1,12 +1,11 @@
 # Starknet.id Contract
 
 This contract is written in Cairo. It allows to mint identity nfts.
-The nft contains fields associated with values. For each field, there can be a user value or values certified by other contracts. In some cases there can be both.
+The nft contains fields associated to values. To each field, value can be bound, certified by a user or or other contracts. For the same field there can be multiple values from multiple contracts.
 
 ## Official addresses of deployment:
-- Goerli: ``0x0798e884450c19e072d6620fefdbeb7387d0453d3fd51d95f5ace1f17633d88b``
-- Goerli (old version): ``0x04564121a7ad7757c425e4dac1a855998bf186303107d1c28edbf0de420e7023``
-- Mainnet: ``none``
+- Goerli: ``0x783a9097b26eae0586373b2ce0ed3529ddc44069d1e0fbc4f66d42b69d6850d``
+- Mainnet: ``0x05dbdedc203e92749e2e746e2d40a768d966bd243df04a6b712e222bc040a9af``
 
 ## Usage
 
@@ -39,6 +38,6 @@ get_confirmed_data(token_id, 'discord', verifier_addr)
 
 ## Building/testing
 
-Testing: ``protostar test --cairo-path ./lib/cairo_contracts/src/``
-Building: ``protostar build --cairo-path ./lib/cairo_contracts/src/``
-Deploying: ``protostar migrate migrations/migration_01_init.cairo --network testnet``
+Testing: ``protostar test``
+Building: ``protostar build``
+Deploying: ``python deploy.py <private_key>``
