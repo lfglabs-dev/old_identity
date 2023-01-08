@@ -1,13 +1,14 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
-from starkware.cairo.common.uint256 import Uint256, uint256_unsigned_div_rem
+from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.registers import get_label_location
 from starkware.cairo.common.math import assert_le_felt
 from starkware.cairo.common.alloc import alloc
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 from cairo_contracts.src.openzeppelin.upgrades.library import Proxy
+from src.token_uri import append_number_ascii, set_token_uri_base_util, read_base_token_uri
 
 //
 // Events
@@ -30,7 +31,7 @@ func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 ) {
     Proxy.initializer(proxy_admin);
     ERC721.initializer('Starknet.id', 'ID');
-    _set_token_uri_base_util(uri_base_len, uri_base);
+    set_token_uri_base_util(uri_base_len, uri_base);
     return ();
 }
 
@@ -44,10 +45,6 @@ func user_data(token_id: felt, field: felt) -> (data: felt) {
 
 @storage_var
 func verifier_data(tokenid: felt, field: felt, address: felt) -> (data: felt) {
-}
-
-@storage_var
-func token_uri_base(char_id: felt) -> (ascii_code: felt) {
 }
 
 //
@@ -114,41 +111,8 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
     // https://goerli.indexer.starknet.id/uri?id=
     let (arr_len, arr) = read_base_token_uri(0);
-    let (size) = _append_number_ascii(tokenId, arr + arr_len);
+    let (size) = append_number_ascii(tokenId, arr + arr_len);
     return (arr_len + size, arr);
-}
-
-func read_base_token_uri{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(i) -> (
-    arr_len: felt, arr: felt*
-) {
-    let (value) = token_uri_base.read(i);
-    if (value == 0) {
-        let (arr) = alloc();
-        return (0, arr);
-    }
-
-    let (arr_len, arr) = read_base_token_uri(i + 1);
-    let (value) = token_uri_base.read(arr_len);
-    assert arr[arr_len] = value - 1;
-    return (arr_len + 1, arr);
-}
-
-func _append_number_ascii{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    num: Uint256, arr: felt*
-) -> (added_len: felt) {
-    alloc_locals;
-    local ten: Uint256 = Uint256(10, 0);
-    let (q: Uint256, r: Uint256) = uint256_unsigned_div_rem(num, ten);
-    let digit = r.low + 48;  // ascii
-
-    if (q.low == 0 and q.high == 0) {
-        assert arr[0] = digit;
-        return (1,);
-    }
-
-    let (added_len) = _append_number_ascii(q, arr);
-    assert arr[added_len] = digit;
-    return (added_len + 1,);
 }
 
 //
@@ -271,18 +235,6 @@ func set_token_uri_base{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
     arr_len: felt, arr: felt*
 ) {
     Proxy.assert_only_admin();
-    _set_token_uri_base_util(arr_len, arr);
+    set_token_uri_base_util(arr_len, arr);
     return ();
-}
-
-func _set_token_uri_base_util{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    arr_len: felt, arr: felt*
-) {
-    if (arr_len == 0) {
-        return ();
-    }
-
-    tempvar next_arr_len = arr_len - 1;
-    token_uri_base.write(next_arr_len, 1 + arr[next_arr_len]);
-    return _set_token_uri_base_util(next_arr_len, arr);
 }
