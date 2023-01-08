@@ -9,6 +9,7 @@ from starkware.cairo.common.alloc import alloc
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 from cairo_contracts.src.openzeppelin.upgrades.library import Proxy
 from src.token_uri import append_number_ascii, set_token_uri_base_util, read_base_token_uri
+from src.inft import INFT
 
 //
 // Events
@@ -19,6 +20,10 @@ func UserDataUpdate(starknet_id: felt, field: felt, data: felt) {
 
 @event
 func VerifierDataUpdate(starknet_id: felt, field: felt, data: felt, verifier: felt) {
+}
+
+@event
+func on_inft_equipped(inft_contract, inft_id: felt, starknet_id: felt) {
 }
 
 //
@@ -44,7 +49,11 @@ func user_data(starknet_id: felt, field: felt) -> (data: felt) {
 }
 
 @storage_var
-func verifier_data(tokenid: felt, field: felt, address: felt) -> (data: felt) {
+func verifier_data(starknet_id: felt, field: felt, address: felt) -> (data: felt) {
+}
+
+@storage_var
+func inft_equipped_by(inft_contract: felt, inft_id: felt) -> (starknet_id: felt) {
 }
 
 //
@@ -145,6 +154,14 @@ func get_confirmed_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
     return (found_user_data,);
 }
 
+@view
+func get_equipped_starknet_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    inft_contract, inft_id
+) -> (starknet_id: felt) {
+    let (starknet_id) = inft_equipped_by.read(inft_contract, inft_id);
+    return (starknet_id,);
+}
+
 //
 // Setters
 //
@@ -215,6 +232,42 @@ func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
     let (address) = get_caller_address();
     VerifierDataUpdate.emit(starknet_id, field, data, address);
     verifier_data.write(starknet_id, field, address, data);
+    return ();
+}
+
+@external
+func equip{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    inft_contract: felt, inft_id: felt
+) {
+    // ensure caller controls the starknet_id owning this iNFT
+    let (starknet_id_owner) = INFT.get_inft_owner(inft_contract, inft_id);
+    let (owner: felt) = ERC721.owner_of(Uint256(starknet_id_owner, 0));
+    let (caller: felt) = get_caller_address();
+    assert owner = caller;
+
+    // update who equips this iNFT
+    inft_equipped_by.write(inft_contract, inft_id, starknet_id_owner);
+
+    // emit event
+    on_inft_equipped.emit(inft_contract, inft_id, starknet_id_owner);
+    return ();
+}
+
+@external
+func unequip{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    inft_contract: felt, inft_id: felt
+) {
+    // ensure caller controls the starknet_id owning this iNFT
+    let (starknet_id_owner) = INFT.get_inft_owner(inft_contract, inft_id);
+    let (owner: felt) = ERC721.owner_of(Uint256(starknet_id_owner, 0));
+    let (caller: felt) = get_caller_address();
+    assert owner = caller;
+
+    // update who equips this iNFT
+    inft_equipped_by.write(inft_contract, inft_id, 0);
+
+    // emit event
+    on_inft_equipped.emit(inft_contract, inft_id, 0);
     return ();
 }
 

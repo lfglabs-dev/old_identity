@@ -37,6 +37,9 @@ namespace IStarknetid {
     func get_confirmed_data(starknet_id: felt, field: felt, address: felt) -> (data: felt) {
     }
 
+    func get_equipped_starknet_id(inft_contract, inft_id) -> (starknet_id: felt) {
+    }
+
     func approve(to: felt, starknet_id: Uint256) {
     }
 
@@ -58,5 +61,11 @@ namespace IStarknetid {
     }
 
     func set_verifier_data(starknet_id: felt, field: felt, data: felt) {
+    }
+
+    func equip(inft_contract: felt, inft_id: felt) {
+    }
+
+    func unequip(inft_contract: felt, inft_id: felt) {
     }
 }
