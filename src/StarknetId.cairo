@@ -14,11 +14,11 @@ from src.token_uri import append_number_ascii, set_token_uri_base_util, read_bas
 // Events
 //
 @event
-func UserDataUpdate(token_id: felt, field: felt, data: felt) {
+func UserDataUpdate(starknet_id: felt, field: felt, data: felt) {
 }
 
 @event
-func VerifierDataUpdate(token_id: felt, field: felt, data: felt, verifier: felt) {
+func VerifierDataUpdate(starknet_id: felt, field: felt, data: felt, verifier: felt) {
 }
 
 //
@@ -40,7 +40,7 @@ func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 //
 
 @storage_var
-func user_data(token_id: felt, field: felt) -> (data: felt) {
+func user_data(starknet_id: felt, field: felt) -> (data: felt) {
 }
 
 @storage_var
@@ -73,25 +73,25 @@ func balanceOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 
 @view
 func ownerOf{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: Uint256
+    starknet_id: Uint256
 ) -> (owner: felt) {
-    let (owner: felt) = ERC721.owner_of(token_id);
+    let (owner: felt) = ERC721.owner_of(starknet_id);
     return (owner,);
 }
 
 @view
-func owner_of{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(token_id: felt) -> (
-    owner: felt
-) {
-    let (owner: felt) = ERC721.owner_of(Uint256(token_id, 0));
+func owner_of{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    starknet_id: felt
+) -> (owner: felt) {
+    let (owner: felt) = ERC721.owner_of(Uint256(starknet_id, 0));
     return (owner,);
 }
 
 @view
 func getApproved{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: Uint256
+    starknet_id: Uint256
 ) -> (approved: felt) {
-    let (approved: felt) = ERC721.get_approved(token_id);
+    let (approved: felt) = ERC721.get_approved(starknet_id);
     return (approved,);
 }
 
@@ -120,27 +120,27 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 //
 @view
 func get_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: felt, field: felt
+    starknet_id: felt, field: felt
 ) -> (data: felt) {
-    let (data: felt) = user_data.read(token_id, field);
+    let (data: felt) = user_data.read(starknet_id, field);
     return (data,);
 }
 
 @view
 func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: felt, field: felt, address: felt
+    starknet_id: felt, field: felt, address: felt
 ) -> (data: felt) {
-    let (data: felt) = verifier_data.read(token_id, field, address);
+    let (data: felt) = verifier_data.read(starknet_id, field, address);
     return (data,);
 }
 
 @view
 func get_confirmed_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    token_id: felt, field: felt, address: felt
+    starknet_id: felt, field: felt, address: felt
 ) -> (data: felt) {
     // returns data if user_data = verifier_data
-    let (found_user_data: felt) = user_data.read(token_id, field);
-    let (found_verifier_data: felt) = verifier_data.read(token_id, field, address);
+    let (found_user_data: felt) = user_data.read(starknet_id, field);
+    let (found_verifier_data: felt) = verifier_data.read(starknet_id, field, address);
     assert found_user_data = found_verifier_data;
     return (found_user_data,);
 }
@@ -151,9 +151,9 @@ func get_confirmed_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 
 @external
 func approve{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    to: felt, token_id: Uint256
+    to: felt, starknet_id: Uint256
 ) {
-    ERC721.approve(to, token_id);
+    ERC721.approve(to, starknet_id);
     return ();
 }
 
@@ -167,17 +167,17 @@ func setApprovalForAll{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 
 @external
 func transferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    _from: felt, to: felt, token_id: Uint256
+    _from: felt, to: felt, starknet_id: Uint256
 ) {
-    ERC721.transfer_from(_from, to, token_id);
+    ERC721.transfer_from(_from, to, starknet_id);
     return ();
 }
 
 @external
 func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    _from: felt, to: felt, token_id: Uint256, data_len: felt, data: felt*
+    _from: felt, to: felt, starknet_id: Uint256, data_len: felt, data: felt*
 ) {
-    ERC721.safe_transfer_from(_from, to, token_id, data_len, data);
+    ERC721.safe_transfer_from(_from, to, starknet_id, data_len, data);
     return ();
 }
 
@@ -186,10 +186,10 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
 //
 
 @external
-func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token_id: felt) {
+func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(starknet_id: felt) {
     let (to) = get_caller_address();
-    assert_le_felt(token_id, (2 ** 128) - 1);
-    ERC721._mint(to, Uint256(token_id, 0));
+    assert_le_felt(starknet_id, (2 ** 128) - 1);
+    ERC721._mint(to, Uint256(starknet_id, 0));
     return ();
 }
 
@@ -198,23 +198,23 @@ func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(token
 //
 @external
 func set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    token_id: felt, field: felt, data: felt
+    starknet_id: felt, field: felt, data: felt
 ) {
-    let (owner) = ERC721.owner_of(Uint256(token_id, 0));
+    let (owner) = ERC721.owner_of(Uint256(starknet_id, 0));
     let (caller) = get_caller_address();
     assert owner = caller;
-    UserDataUpdate.emit(token_id, field, data);
-    user_data.write(token_id, field, data);
+    UserDataUpdate.emit(starknet_id, field, data);
+    user_data.write(starknet_id, field, data);
     return ();
 }
 
 @external
 func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    token_id: felt, field: felt, data: felt
+    starknet_id: felt, field: felt, data: felt
 ) {
     let (address) = get_caller_address();
-    VerifierDataUpdate.emit(token_id, field, data, address);
-    verifier_data.write(token_id, field, address, data);
+    VerifierDataUpdate.emit(starknet_id, field, data, address);
+    verifier_data.write(starknet_id, field, address, data);
     return ();
 }
 
