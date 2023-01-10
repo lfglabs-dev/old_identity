@@ -14,9 +14,9 @@ from src.StarknetId import (
     mint,
     tokenURI,
     owner_of,
-    _append_number_ascii,
-    _set_token_uri_base_util,
 )
+
+from src.token_uri import append_number_ascii, set_token_uri_base_util
 
 @external
 func test_set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() {
@@ -93,7 +93,7 @@ func test_uri{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}()
     alloc_locals;
 
     %{ stop_prank_callable = start_prank(123) %}
-    _set_token_uri_base_util(
+    set_token_uri_base_util(
         35,
         new (
             104,
@@ -149,7 +149,7 @@ func test_uri{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}()
 @external
 func test_append_number_ascii{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
     alloc_locals;
-    _set_token_uri_base_util(
+    set_token_uri_base_util(
         35,
         new (
             104,
@@ -193,7 +193,7 @@ func test_append_number_ascii{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ra
     let number = Uint256(123450, 0);
     let (arr) = alloc();
     assert arr[0] = 1234567898765;
-    let (added_len) = _append_number_ascii(number, arr + 1);
+    let (added_len) = append_number_ascii(number, arr + 1);
     assert added_len = 6;
     assert arr[0] = 1234567898765;
     assert arr[1] = 48 + 1;
