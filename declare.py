@@ -22,7 +22,6 @@ chainid: StarknetChainId = StarknetChainId.TESTNET
 max_fee = int(1e16)
 # deployer_address=0x041A78E741E5AF2FEC34B695679BC6891742439F7AFB8484ECD7766661AD02BF
 deployer = Deployer()
-token_uri_base = "https://goerli.indexer.starknet.id/uri?id="
 
 
 async def main():
