@@ -4,7 +4,6 @@ from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.net import AccountClient, KeyPair
 from starknet_py.net.gateway_client import GatewayClient
 import asyncio
-import json
 import sys
 
 argv = sys.argv
