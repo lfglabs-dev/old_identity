@@ -4,7 +4,7 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin, SignatureBuiltin
 from starkware.cairo.common.uint256 import Uint256
 from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.registers import get_label_location
-from starkware.cairo.common.math import assert_le_felt
+from starkware.cairo.common.math import assert_nn, assert_not_zero
 from starkware.cairo.common.alloc import alloc
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 from cairo_contracts.src.openzeppelin.upgrades.library import Proxy
@@ -205,7 +205,9 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
 @external
 func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(starknet_id: felt) {
     let (to) = get_caller_address();
-    assert_le_felt(starknet_id, (2 ** 128) - 1);
+    // ensures 0 < starknet_id < 2**128
+    assert_nn(starknet_id);
+    assert_not_zero(starknet_id);
     ERC721._mint(to, Uint256(starknet_id, 0));
     return ();
 }
@@ -280,6 +282,13 @@ func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 ) {
     Proxy.assert_only_admin();
     Proxy._set_implementation_hash(new_implementation);
+    return ();
+}
+
+@external
+func burn_zero{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
+    Proxy.assert_only_admin();
+    ERC721._burn(Uint256(0, 0));
     return ();
 }
 
