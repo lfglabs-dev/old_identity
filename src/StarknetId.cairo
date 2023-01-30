@@ -206,8 +206,10 @@ func safeTransferFrom{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_chec
 func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(starknet_id: felt) {
     let (to) = get_caller_address();
     // ensures 0 < starknet_id < 2**128
-    assert_nn(starknet_id);
-    assert_not_zero(starknet_id);
+    with_attr error_message("You can only mint a token whose id is within the range ] 0; 2^128 [") {
+        assert_nn(starknet_id);
+        assert_not_zero(starknet_id);
+    }
     ERC721._mint(to, Uint256(starknet_id, 0));
     return ();
 }
