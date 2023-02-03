@@ -9,6 +9,7 @@ from starkware.cairo.common.alloc import alloc
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 from cairo_contracts.src.openzeppelin.upgrades.library import Proxy
 from src.token_uri import append_number_ascii, set_token_uri_base_util, read_base_token_uri
+from src.storage import write_extended_data, read_extended_data, read_unknown_extended_data
 from src.inft import INFT
 
 //
@@ -20,6 +21,12 @@ func UserDataUpdate(starknet_id: felt, field: felt, data: felt) {
 
 @event
 func VerifierDataUpdate(starknet_id: felt, field: felt, data: felt, verifier: felt) {
+}
+
+@event
+func ExtendedVerifierDataUpdate(
+    starknet_id: felt, author: felt, field: felt, data_len: felt, data: felt*
+) {
 }
 
 @event
@@ -43,6 +50,10 @@ func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 //
 // Storage
 //
+
+@storage_var
+func starknet_id_data(starknet_id: felt, field: felt, author: felt) -> (first_data: felt) {
+}
 
 @storage_var
 func user_data(starknet_id: felt, field: felt) -> (data: felt) {
@@ -144,6 +155,25 @@ func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 }
 
 @view
+func get_extended_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    starknet_id: felt, field: felt, address: felt, length: felt
+) -> (data_len: felt, data: felt*) {
+    let (addr: felt) = verifier_data.addr(starknet_id, field, address);
+    return read_extended_data(addr, length);
+}
+
+@view
+func get_extended_unknown_verifier_data{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}(starknet_id: felt, field: felt, address: felt) -> (data_len: felt, data: felt*) {
+    alloc_locals;
+    let (arr) = alloc();
+    let (addr: felt) = verifier_data.addr(starknet_id, field, address);
+    let (arr_len) = read_unknown_extended_data(arr, addr, 0);
+    return (arr_len, arr);
+}
+
+@view
 func get_equipped_starknet_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     inft_contract, inft_id
 ) -> (starknet_id: felt) {
@@ -225,6 +255,19 @@ func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
     let (address) = get_caller_address();
     VerifierDataUpdate.emit(starknet_id, field, data, address);
     verifier_data.write(starknet_id, field, address, data);
+    return ();
+}
+
+// note: when working with multiple sizes, make sure to write data_len+1 with last_value = 0
+@external
+func set_extended_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    starknet_id: felt, field: felt, data_len: felt, data: felt*
+) {
+    alloc_locals;
+    let (author) = get_caller_address();
+    let (begin_addr) = verifier_data.addr(starknet_id, field, author);
+    write_extended_data(begin_addr, data_len, data);
+    ExtendedVerifierDataUpdate.emit(starknet_id, author, field, data_len, data);
     return ();
 }
 

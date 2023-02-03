@@ -1,47 +1,42 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from starkware.cairo.common.registers import get_label_location
-from starkware.cairo.common.invoke import invoke
-from starkware.starknet.common.syscalls import storage_read, storage_write
+from starkware.starknet.common.syscalls import storage_write, storage_read
+from starkware.cairo.common.alloc import alloc
 
-namespace Storage {
-    func write{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        storage_var: codeoffset, len_inputs: felt, inputs: felt*, output: felt
-    ) {
-        let (addr) = compute_addr(storage_var, len_inputs, inputs);
-        storage_write(addr, output);
+func write_extended_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    addr: felt, data_len: felt, data: felt*
+) {
+    if (data_len == 0) {
         return ();
     }
+    let written = [data];
+    storage_write(addr, written);
+    return write_extended_data(addr + 1, data_len - 1, data + 1);
+}
 
-    func read{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        storage_var: codeoffset, len_inputs: felt, inputs: felt*
-    ) -> (output: felt) {
-        let (addr) = compute_addr(storage_var, len_inputs, inputs);
-        let (output: felt) = storage_read(addr);
-        return (output,);
+func read_extended_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    addr: felt, data_len: felt
+) -> (data_len: felt, data: felt*) {
+    if (data_len == 0) {
+        let (data) = alloc();
+        return (0, data);
     }
 
-    func compute_addr{pedersen_ptr: HashBuiltin*, range_check_ptr}(
-        storage_var: codeoffset, len_inputs: felt, inputs: felt*
-    ) -> (addr: felt) {
-        alloc_locals;
-        let (local func_pc) = get_label_location(storage_var);
-        _prepare_call(pedersen_ptr, range_check_ptr, len_inputs, inputs + len_inputs);
-        call abs func_pc;  // removing alloc_locals by calling ap[11-6*2] ?
-        ret;
-    }
+    let (rest_len, rest) = read_extended_data(addr, data_len - 1);
+    let (to_add) = storage_read(addr + rest_len);
+    assert rest[rest_len] = to_add;
+    return (rest_len + 1, rest);
+}
 
-    func _prepare_call(
-        pedersen_ptr: HashBuiltin*, range_check_ptr, inputs_len: felt, inputs: felt*
-    ) -> () {
-        if (inputs_len == 0) {
-            [ap] = pedersen_ptr, ap++;
-            [ap] = range_check_ptr, ap++;
-            return ();
-        }
-        _prepare_call(pedersen_ptr, range_check_ptr, inputs_len - 1, inputs - 1);
-        [ap] = [inputs - 1], ap++;
-        return ();
+// lemgth should be zero at first
+func read_unknown_extended_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    arr: felt*, addr: felt, length: felt
+) -> (data_len: felt) {
+    let (to_add) = storage_read(addr);
+    if (to_add == 0) {
+        return (length,);
     }
+    assert [arr] = to_add;
+    return read_unknown_extended_data(arr + 1, addr + 1, length + 1);
 }
