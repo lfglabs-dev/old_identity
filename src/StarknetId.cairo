@@ -144,17 +144,6 @@ func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 }
 
 @view
-func get_confirmed_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    starknet_id: felt, field: felt, address: felt
-) -> (data: felt) {
-    // returns data if user_data = verifier_data
-    let (found_user_data: felt) = user_data.read(starknet_id, field);
-    let (found_verifier_data: felt) = verifier_data.read(starknet_id, field, address);
-    assert found_user_data = found_verifier_data;
-    return (found_user_data,);
-}
-
-@view
 func get_equipped_starknet_id{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     inft_contract, inft_id
 ) -> (starknet_id: felt) {
