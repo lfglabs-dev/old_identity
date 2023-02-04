@@ -31,7 +31,25 @@ namespace IStarknetid {
     func get_user_data(starknet_id: felt, field: felt) -> (data: felt) {
     }
 
+    func get_extended_user_data(starknet_id: felt, field: felt, length: felt) {
+    }
+
+    func get_extended_unknown_user_data(starknet_id: felt, field: felt, address: felt) -> (
+        data_len: felt, data: felt*
+    ) {
+    }
+
     func get_verifier_data(starknet_id: felt, field: felt, address: felt) -> (data: felt) {
+    }
+
+    func get_extended_verifier_data(
+        starknet_id: felt, field: felt, address: felt, length: felt
+    ) -> (data_len: felt, data: felt*) {
+    }
+
+    func get_extended_unknown_verifier_data(starknet_id: felt, field: felt, address: felt) -> (
+        data_len: felt, data: felt*
+    ) {
     }
 
     func get_equipped_starknet_id(inft_contract, inft_id) -> (starknet_id: felt) {
@@ -57,7 +75,13 @@ namespace IStarknetid {
     func set_user_data(starknet_id: felt, field: felt, data: felt) {
     }
 
+    func set_extended_user_data(starknet_id: felt, field: felt, data_len: felt, data: felt*) {
+    }
+
     func set_verifier_data(starknet_id: felt, field: felt, data: felt) {
+    }
+
+    func set_extended_verifier_data(starknet_id: felt, field: felt, data_len: felt, data: felt*) {
     }
 
     func equip(inft_contract: felt, inft_id: felt) {

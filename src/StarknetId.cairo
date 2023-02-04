@@ -151,6 +151,25 @@ func get_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 }
 
 @view
+func get_extended_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    starknet_id: felt, field: felt, length: felt
+) -> (data_len: felt, data: felt*) {
+    let (addr: felt) = user_data.addr(starknet_id, field);
+    return read_extended_data(addr, length);
+}
+
+@view
+func get_extended_unknown_user_data{
+    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
+}(starknet_id: felt, field: felt, address: felt) -> (data_len: felt, data: felt*) {
+    alloc_locals;
+    let (arr) = alloc();
+    let (addr: felt) = user_data.addr(starknet_id, field);
+    let (arr_len) = read_unknown_extended_data(arr, addr, 0);
+    return (arr_len, arr);
+}
+
+@view
 func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     starknet_id: felt, field: felt, address: felt
 ) -> (data: felt) {
