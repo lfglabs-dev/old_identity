@@ -20,6 +20,10 @@ func UserDataUpdate(starknet_id: felt, field: felt, data: felt) {
 }
 
 @event
+func ExtendedUserDataUpdate(starknet_id: felt, field: felt, data_len: felt, data: felt*) {
+}
+
+@event
 func VerifierDataUpdate(starknet_id: felt, field: felt, data: felt, verifier: felt) {
 }
 
@@ -245,6 +249,21 @@ func set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_p
     assert owner = caller;
     UserDataUpdate.emit(starknet_id, field, data);
     user_data.write(starknet_id, field, data);
+    return ();
+}
+
+// note: when working with multiple sizes, make sure to write data_len+1 with last_value = 0
+@external
+func set_extended_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
+    starknet_id: felt, field: felt, data_len: felt, data: felt*
+) {
+    alloc_locals;
+    let (owner) = ERC721.owner_of(Uint256(starknet_id, 0));
+    let (caller) = get_caller_address();
+    assert owner = caller;
+    let (begin_addr) = user_data.addr(starknet_id, field);
+    write_extended_data(begin_addr, data_len, data);
+    ExtendedUserDataUpdate.emit(starknet_id, field, data_len, data);
     return ();
 }
 
