@@ -9,7 +9,7 @@ from starkware.cairo.common.alloc import alloc
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 from cairo_contracts.src.openzeppelin.upgrades.library import Proxy
 from src.token_uri import append_number_ascii, set_token_uri_base_util, read_base_token_uri
-from src.storage import write_extended_data, read_extended_data, read_unknown_extended_data
+from src.storage import write_extended_data, read_extended_data, read_unbounded_data
 from src.inft import INFT
 
 //
@@ -159,13 +159,13 @@ func get_extended_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
 }
 
 @view
-func get_extended_unknown_user_data{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}(starknet_id: felt, field: felt, address: felt) -> (data_len: felt, data: felt*) {
+func get_unbounded_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    starknet_id: felt, field: felt
+) -> (data_len: felt, data: felt*) {
     alloc_locals;
     let (arr) = alloc();
     let (addr: felt) = user_data.addr(starknet_id, field);
-    let (arr_len) = read_unknown_extended_data(arr, addr, 0);
+    let (arr_len) = read_unbounded_data(arr, addr, 0);
     return (arr_len, arr);
 }
 
@@ -186,13 +186,13 @@ func get_extended_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
 }
 
 @view
-func get_extended_unknown_verifier_data{
-    syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
-}(starknet_id: felt, field: felt, address: felt) -> (data_len: felt, data: felt*) {
+func get_unbounded_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    starknet_id: felt, field: felt, address: felt
+) -> (data_len: felt, data: felt*) {
     alloc_locals;
     let (arr) = alloc();
     let (addr: felt) = verifier_data.addr(starknet_id, field, address);
-    let (arr_len) = read_unknown_extended_data(arr, addr, 0);
+    let (arr_len) = read_unbounded_data(arr, addr, 0);
     return (arr_len, arr);
 }
 

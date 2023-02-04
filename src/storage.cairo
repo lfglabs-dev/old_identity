@@ -30,7 +30,7 @@ func read_extended_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 }
 
 // lemgth should be zero at first
-func read_unknown_extended_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func read_unbounded_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     arr: felt*, addr: felt, length: felt
 ) -> (data_len: felt) {
     let (to_add) = storage_read(addr);
@@ -38,5 +38,5 @@ func read_unknown_extended_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
         return (length,);
     }
     assert [arr] = to_add;
-    return read_unknown_extended_data(arr + 1, addr + 1, length + 1);
+    return read_unbounded_data(arr + 1, addr + 1, length + 1);
 }

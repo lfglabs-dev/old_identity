@@ -8,7 +8,7 @@ from src.StarknetId import (
     mint,
     set_extended_verifier_data,
     get_extended_verifier_data,
-    get_extended_unknown_verifier_data,
+    get_unbounded_verifier_data,
 )
 
 @external
@@ -24,12 +24,12 @@ func test_set_extended_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, rang
     assert 12345 = values[0];
     assert 6789 = values[1];
 
-    let (len, values) = get_extended_unknown_verifier_data(token_id, 'avatar', 123);
+    let (len, values) = get_unbounded_verifier_data(token_id, 'avatar', 123);
     assert len = 2;
     assert 12345 = values[0];
     assert 6789 = values[1];
 
-    let (len, values) = get_extended_unknown_verifier_data(token_id, 'yolo', 123);
+    let (len, values) = get_unbounded_verifier_data(token_id, 'yolo', 123);
     assert len = 0;
     let (len, values) = get_extended_verifier_data(token_id, 'yolo', 123, 3);
     assert len = 3;
