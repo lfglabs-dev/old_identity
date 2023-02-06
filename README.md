@@ -1,7 +1,7 @@
 # Starknet.id Contract
 
 This contract is written in Cairo. It allows to mint identity nfts.
-The nft contains fields associated to values. To each field, value can be bound, certified by a user or or other contracts. For the same field there can be multiple values from multiple contracts.
+The nft contains fields associated to values. To each field, value can be bound, certified by a user or other contracts. For the same field there can be multiple values from multiple contracts.
 
 ## Official addresses of deployment:
 - Goerli: ``0x783a9097b26eae0586373b2ce0ed3529ddc44069d1e0fbc4f66d42b69d6850d``
