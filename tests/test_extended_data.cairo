@@ -47,6 +47,10 @@ func test_verifier_extended_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*,
     assert values[1] = 0;
     assert values[2] = 0;
 
+    // should not return any user data
+    let (len, values) = get_unbounded_user_data(token_id, 'avatar');
+    assert len = 0;
+
     %{ stop_prank_callable() %}
     return ();
 }
@@ -82,6 +86,10 @@ func test_user_extended_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, ran
     assert values[0] = 0;
     assert values[1] = 0;
     assert values[2] = 0;
+
+    // should not return any verifier data
+    let (len, values) = get_unbounded_verifier_data(token_id, 'avatar', 123);
+    assert len = 0;
 
     %{ stop_prank_callable() %}
     return ();

@@ -31,9 +31,6 @@ get_user_data(token_id, 'discord')
 
 # get data written by the specified verifier
 get_verifier_data(token_id, 'discord', verifier_addr)
-
-# get data only if both verifier and owner agreed on its value
-get_confirmed_data(token_id, 'discord', verifier_addr)
 ```
 
 ## Building/testing
