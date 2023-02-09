@@ -50,7 +50,7 @@ get_unbounded_verifier_data(token_id, 'avatar', verifier_addr);
 ```
 
 ## Building/testing
-
+Setup: ``protostar install``
 Testing: ``protostar test``
 Building: ``protostar build``
 Deploying: ``python deploy.py <private_key>``
