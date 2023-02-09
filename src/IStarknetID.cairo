@@ -34,9 +34,7 @@ namespace IStarknetid {
     func get_extended_user_data(starknet_id: felt, field: felt, length: felt) {
     }
 
-    func get_extended_unknown_user_data(starknet_id: felt, field: felt) -> (
-        data_len: felt, data: felt*
-    ) {
+    func get_unbounded_user_data(starknet_id: felt, field: felt) -> (data_len: felt, data: felt*) {
     }
 
     func get_verifier_data(starknet_id: felt, field: felt, address: felt) -> (data: felt) {
@@ -47,7 +45,7 @@ namespace IStarknetid {
     ) -> (data_len: felt, data: felt*) {
     }
 
-    func get_extended_unknown_verifier_data(starknet_id: felt, field: felt, address: felt) -> (
+    func get_unbounded_verifier_data(starknet_id: felt, field: felt, address: felt) -> (
         data_len: felt, data: felt*
     ) {
     }
