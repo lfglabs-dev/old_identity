@@ -29,7 +29,7 @@ func read_extended_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
     return (rest_len + 1, rest);
 }
 
-// lemgth should be zero at first
+// length should be zero at first
 func read_unbounded_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     arr: felt*, addr: felt, length: felt
 ) -> (data_len: felt) {

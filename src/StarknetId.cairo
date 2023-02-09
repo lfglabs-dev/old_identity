@@ -179,7 +179,7 @@ func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 
 @view
 func get_extended_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    starknet_id: felt, field: felt, address: felt, length: felt
+    starknet_id: felt, field: felt, length: felt, address: felt
 ) -> (data_len: felt, data: felt*) {
     let (addr: felt) = verifier_data.addr(starknet_id, field, address);
     return read_extended_data(addr, length);

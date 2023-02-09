@@ -41,7 +41,7 @@ namespace IStarknetid {
     }
 
     func get_extended_verifier_data(
-        starknet_id: felt, field: felt, address: felt, length: felt
+        starknet_id: felt, field: felt, length: felt, address: felt
     ) -> (data_len: felt, data: felt*) {
     }
 
