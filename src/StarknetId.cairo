@@ -358,13 +358,6 @@ func upgrade{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
 }
 
 @external
-func burn_zero{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() {
-    Proxy.assert_only_admin();
-    ERC721._burn(Uint256(0, 0));
-    return ();
-}
-
-@external
 func set_token_uri_base{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     arr_len: felt, arr: felt*
 ) {
