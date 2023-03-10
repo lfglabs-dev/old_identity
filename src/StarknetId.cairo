@@ -6,6 +6,7 @@ from starkware.starknet.common.syscalls import get_caller_address
 from starkware.cairo.common.registers import get_label_location
 from starkware.cairo.common.math import assert_nn, assert_not_zero
 from starkware.cairo.common.alloc import alloc
+from openzeppelin.introspection.erc165.library import ERC165
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 from cairo_contracts.src.openzeppelin.upgrades.library import Proxy
 from src.token_uri import append_number_ascii, set_token_uri_base_util, read_base_token_uri
@@ -137,6 +138,13 @@ func tokenURI{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     let (arr_len, arr) = read_base_token_uri(0);
     let (size) = append_number_ascii(tokenId, arr + arr_len);
     return (arr_len + size, arr);
+}
+
+@view
+func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    interfaceId: felt
+) -> (success: felt) {
+    return ERC165.supports_interface(interfaceId);
 }
 
 //
