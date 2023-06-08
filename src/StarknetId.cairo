@@ -9,7 +9,7 @@ from starkware.cairo.common.alloc import alloc
 from openzeppelin.introspection.erc165.library import ERC165
 from cairo_contracts.src.openzeppelin.token.erc721.library import ERC721
 from cairo_contracts.src.openzeppelin.upgrades.library import Proxy
-from src.token_uri import append_number_ascii, set_token_uri_base_util, read_base_token_uri
+from src.token_uri import append_number_ascii, set_token_uri_base_util, read_base_token_uri, token_uri_base
 from src.storage import write_extended_data, read_extended_data, read_unbounded_data
 from src.inft import INFT
 
@@ -49,6 +49,7 @@ func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     Proxy.initializer(proxy_admin);
     ERC721.initializer('Starknet.id', 'ID');
     set_token_uri_base_util(uri_base_len, uri_base);
+    token_uri_base.write(uri_base_len, 0);
     return ();
 }
 
