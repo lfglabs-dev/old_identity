@@ -49,7 +49,6 @@ func initializer{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
     Proxy.initializer(proxy_admin);
     ERC721.initializer('Starknet.id', 'ID');
     set_token_uri_base_util(uri_base_len, uri_base);
-    token_uri_base.write(uri_base_len, 0);
     return ();
 }
 
@@ -372,5 +371,6 @@ func set_token_uri_base{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_ch
 ) {
     Proxy.assert_only_admin();
     set_token_uri_base_util(arr_len, arr);
+    token_uri_base.write(arr_len, 0);
     return ();
 }
