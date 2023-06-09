@@ -1,4 +1,3 @@
-from starkware.starknet.compiler.compile import get_selector_from_name
 from starknet_py.net.models.chains import StarknetChainId
 from starknet_py.net.udc_deployer.deployer import Deployer
 from starknet_py.net.gateway_client import GatewayClient
@@ -42,6 +41,7 @@ async def main():
     impl_file.close()
     impl_declaration = await client.declare(transaction=declare_contract_tx)
     impl_contract_class_hash = impl_declaration.class_hash
+    print("transaction hash:", hex(impl_declaration.transaction_hash))
     print("implementation class hash:", hex(impl_contract_class_hash))
 
 
