@@ -23,32 +23,32 @@ func test_verifier_extended_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*,
     let token_id = 1;
     mint(token_id);
     // should set the avatar of specified token_id to [ 12345, 6789 ]
-    set_extended_verifier_data(token_id, 'avatar', 2, new (12345, 6789));
+    set_extended_verifier_data(token_id, 'avatar', 2, new (12345, 6789), 0);
     // should retrieve it by specifying the array length
-    let (len, values) = get_extended_verifier_data(token_id, 'avatar', 2, 123);
+    let (len, values) = get_extended_verifier_data(token_id, 'avatar', 2, 123, 0);
     assert len = 2;
     assert 12345 = values[0];
     assert 6789 = values[1];
 
     // should retrieve it without specifying the length (stops at 0)
-    let (len, values) = get_unbounded_verifier_data(token_id, 'avatar', 123);
+    let (len, values) = get_unbounded_verifier_data(token_id, 'avatar', 123, 0);
     assert len = 2;
     assert 12345 = values[0];
     assert 6789 = values[1];
 
     // should retrieve nothing
-    let (len, values) = get_unbounded_verifier_data(token_id, 'yolo', 123);
+    let (len, values) = get_unbounded_verifier_data(token_id, 'yolo', 123, 0);
     assert len = 0;
 
     // should retrieve an array of specified size full of 0
-    let (len, values) = get_extended_verifier_data(token_id, 'yolo', 3, 123);
+    let (len, values) = get_extended_verifier_data(token_id, 'yolo', 3, 123, 0);
     assert len = 3;
     assert values[0] = 0;
     assert values[1] = 0;
     assert values[2] = 0;
 
     // should not return any user data
-    let (len, values) = get_unbounded_user_data(token_id, 'avatar');
+    let (len, values) = get_unbounded_user_data(token_id, 'avatar', 0);
     assert len = 0;
 
     %{ stop_prank_callable() %}
@@ -63,32 +63,32 @@ func test_user_extended_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, ran
     let token_id = 1;
     mint(token_id);
     // should set the avatar of specified token_id to [ 12345, 6789 ]
-    set_extended_user_data(token_id, 'avatar', 2, new (12345, 6789));
+    set_extended_user_data(token_id, 'avatar', 2, new (12345, 6789), 0);
     // should retrieve it by specifying the array length
-    let (len, values) = get_extended_user_data(token_id, 'avatar', 2);
+    let (len, values) = get_extended_user_data(token_id, 'avatar', 2, 0);
     assert len = 2;
     assert 12345 = values[0];
     assert 6789 = values[1];
 
     // should retrieve it without specifying the length (stops at 0)
-    let (len, values) = get_unbounded_user_data(token_id, 'avatar');
+    let (len, values) = get_unbounded_user_data(token_id, 'avatar', 0);
     assert len = 2;
     assert 12345 = values[0];
     assert 6789 = values[1];
 
     // should retrieve nothing
-    let (len, values) = get_unbounded_user_data(token_id, 'yolo');
+    let (len, values) = get_unbounded_user_data(token_id, 'yolo', 0);
     assert len = 0;
 
     // should retrieve an array of specified size full of 0
-    let (len, values) = get_extended_user_data(token_id, 'yolo', 3);
+    let (len, values) = get_extended_user_data(token_id, 'yolo', 3, 0);
     assert len = 3;
     assert values[0] = 0;
     assert values[1] = 0;
     assert values[2] = 0;
 
     // should not return any verifier data
-    let (len, values) = get_unbounded_verifier_data(token_id, 'avatar', 123);
+    let (len, values) = get_unbounded_verifier_data(token_id, 'avatar', 123, 0);
     assert len = 0;
 
     %{ stop_prank_callable() %}

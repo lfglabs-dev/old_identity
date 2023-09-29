@@ -27,7 +27,7 @@ func test_set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, rang
     let type = 19256242726728292;  // # Discord
     let data = 58596348113441803209962597;  // # 0xBenaparte
 
-    set_verifier_data(token_id, type, data);
+    set_verifier_data(token_id, type, data, 0);
 
     // # valid case
     let (isValidData) = verifier_data.read(token_id, type, 123);
@@ -71,7 +71,7 @@ func test_set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_ch
     let type = 19256242726728292;  // # Discord
     let data = 58596348113441803209962597;  // # 0xBenaparte
 
-    set_user_data(token_id, type, data);
+    set_user_data(token_id, type, data, 0);
 
     // valid case
     let (identityData) = user_data.read(token_id, type);
