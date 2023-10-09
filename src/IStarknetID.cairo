@@ -28,24 +28,24 @@ namespace IStarknetid {
     func tokenURI(tokenId: Uint256) -> (tokenURI_len: felt, tokenURI: felt*) {
     }
 
-    func get_user_data(starknet_id: felt, field: felt) -> (data: felt) {
+    func get_user_data(starknet_id: felt, field: felt, domain: felt) -> (data: felt) {
     }
 
-    func get_extended_user_data(starknet_id: felt, field: felt, length: felt) {
+    func get_extended_user_data(starknet_id: felt, field: felt, length: felt, domain: felt) {
     }
 
-    func get_unbounded_user_data(starknet_id: felt, field: felt) -> (data_len: felt, data: felt*) {
+    func get_unbounded_user_data(starknet_id: felt, field: felt, domain: felt) -> (data_len: felt, data: felt*) {
     }
 
-    func get_verifier_data(starknet_id: felt, field: felt, address: felt) -> (data: felt) {
+    func get_verifier_data(starknet_id: felt, field: felt, address: felt, domain: felt) -> (data: felt) {
     }
 
     func get_extended_verifier_data(
-        starknet_id: felt, field: felt, length: felt, address: felt
+        starknet_id: felt, field: felt, length: felt, address: felt, domain: felt
     ) -> (data_len: felt, data: felt*) {
     }
 
-    func get_unbounded_verifier_data(starknet_id: felt, field: felt, address: felt) -> (
+    func get_unbounded_verifier_data(starknet_id: felt, field: felt, address: felt, domain: felt) -> (
         data_len: felt, data: felt*
     ) {
     }
@@ -70,16 +70,16 @@ namespace IStarknetid {
     func mint(starknet_id: felt) {
     }
 
-    func set_user_data(starknet_id: felt, field: felt, data: felt) {
+    func set_user_data(starknet_id: felt, field: felt, data: felt, domain: felt) {
     }
 
-    func set_extended_user_data(starknet_id: felt, field: felt, data_len: felt, data: felt*) {
+    func set_extended_user_data(starknet_id: felt, field: felt, data_len: felt, data: felt*, domain: felt) {
     }
 
-    func set_verifier_data(starknet_id: felt, field: felt, data: felt) {
+    func set_verifier_data(starknet_id: felt, field: felt, data: felt, domain: felt) {
     }
 
-    func set_extended_verifier_data(starknet_id: felt, field: felt, data_len: felt, data: felt*) {
+    func set_extended_verifier_data(starknet_id: felt, field: felt, data_len: felt, data: felt*, domain: felt) {
     }
 
     func equip(inft_contract: felt, inft_id: felt) {

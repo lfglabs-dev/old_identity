@@ -152,7 +152,7 @@ func supportsInterface{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 //
 @view
 func get_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    starknet_id: felt, field: felt
+    starknet_id: felt, field: felt, domain: felt,
 ) -> (data: felt) {
     let (data: felt) = user_data.read(starknet_id, field);
     return (data,);
@@ -160,7 +160,7 @@ func get_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_p
 
 @view
 func get_extended_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    starknet_id: felt, field: felt, length: felt
+    starknet_id: felt, field: felt, length: felt, domain: felt,
 ) -> (data_len: felt, data: felt*) {
     let (addr: felt) = user_data.addr(starknet_id, field);
     return read_extended_data(addr, length);
@@ -168,7 +168,7 @@ func get_extended_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, rang
 
 @view
 func get_unbounded_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    starknet_id: felt, field: felt
+    starknet_id: felt, field: felt, domain: felt,
 ) -> (data_len: felt, data: felt*) {
     alloc_locals;
     let (arr) = alloc();
@@ -179,7 +179,7 @@ func get_unbounded_user_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, ran
 
 @view
 func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    starknet_id: felt, field: felt, address: felt
+    starknet_id: felt, field: felt, address: felt, domain: felt,
 ) -> (data: felt) {
     let (data: felt) = verifier_data.read(starknet_id, field, address);
     return (data,);
@@ -187,7 +187,7 @@ func get_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_che
 
 @view
 func get_extended_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    starknet_id: felt, field: felt, length: felt, address: felt
+    starknet_id: felt, field: felt, length: felt, address: felt, domain: felt,
 ) -> (data_len: felt, data: felt*) {
     let (addr: felt) = verifier_data.addr(starknet_id, field, address);
     return read_extended_data(addr, length);
@@ -195,7 +195,7 @@ func get_extended_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
 
 @view
 func get_unbounded_verifier_data{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    starknet_id: felt, field: felt, address: felt
+    starknet_id: felt, field: felt, address: felt, domain: felt,
 ) -> (data_len: felt, data: felt*) {
     alloc_locals;
     let (arr) = alloc();
@@ -269,7 +269,7 @@ func mint{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(stark
 //
 @external
 func set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    starknet_id: felt, field: felt, data: felt
+    starknet_id: felt, field: felt, data: felt, domain: felt,
 ) {
     let (owner) = ERC721.owner_of(Uint256(starknet_id, 0));
     let (caller) = get_caller_address();
@@ -282,7 +282,7 @@ func set_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_p
 // note: when working with multiple sizes, make sure to write data_len+1 with last_value = 0
 @external
 func set_extended_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    starknet_id: felt, field: felt, data_len: felt, data: felt*
+    starknet_id: felt, field: felt, data_len: felt, data: felt*, domain: felt,
 ) {
     alloc_locals;
     let (owner) = ERC721.owner_of(Uint256(starknet_id, 0));
@@ -296,7 +296,7 @@ func set_extended_user_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, rang
 
 @external
 func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    starknet_id: felt, field: felt, data: felt
+    starknet_id: felt, field: felt, data: felt, domain: felt,
 ) {
     let (address) = get_caller_address();
     VerifierDataUpdate.emit(starknet_id, field, data, address);
@@ -307,7 +307,7 @@ func set_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_che
 // note: when working with multiple sizes, make sure to write data_len+1 with last_value = 0
 @external
 func set_extended_verifier_data{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(
-    starknet_id: felt, field: felt, data_len: felt, data: felt*
+    starknet_id: felt, field: felt, data_len: felt, data: felt*, domain: felt,
 ) {
     alloc_locals;
     let (author) = get_caller_address();
